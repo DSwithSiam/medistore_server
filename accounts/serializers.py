@@ -1,19 +1,29 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import User
-
+from rest_framework.response import Response
+from rest_framework import status
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="Email already exists."
+            )
+        ]
     )
     password = serializers.CharField(
         write_only=True,
         required=True,
     )
 
-
+    if User.objects.filter(email=email).exists():
+        raise Response({
+            'message': 'User with this email already exists.'
+        }, status=status.HTTP_400_BAD_REQUEST)
     class Meta:
         model = User
         fields = (
