@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-9=a7ap**cvt*^fzvx!xo#4$4eqgx6$dq&_f!k62j29f_6vi#9j
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["10.10.13.11", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["10.10.13.104", "localhost", "127.0.0.1"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Application definition
@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'accounts',
     'dashboard',
     'products',
