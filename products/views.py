@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator
 from .serializers import ProductSerializer, ProductCreateUpdateSerializer
 from .models import Product
 from rest_framework.decorators import api_view
@@ -11,7 +12,14 @@ from rest_framework.decorators import permission_classes
 @permission_classes([AllowAny])
 def product_list(request):
     products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
+    paginator = Paginator(products, 18)
+    page_number = request.query_params.get('page', 1)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except Exception:
+        page_obj = paginator.get_page(1)
+
+    serializer = ProductSerializer(page_obj.object_list, many=True)
     filtered = [
         {
             'product_image': item.get('product_image'),
@@ -23,7 +31,19 @@ def product_list(request):
         }
         for item in serializer.data
     ]
-    return Response({'products': filtered})
+    return Response({
+        'products': filtered,
+        'pagination': {
+            'page': page_obj.number,
+            'per_page': 18,
+            'total_pages': paginator.num_pages,
+            'total_items': paginator.count,
+            'has_next': page_obj.has_next(),
+            'has_prev': page_obj.has_previous(),
+            'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+            'prev_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        }
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

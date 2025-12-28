@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
-
+from dashboard.serializers import RequestQuoteSerializer
 from products.serializers import ProductSerializer
 # Create your views here.
 
@@ -29,8 +29,8 @@ def dashboard_home(request):
             for item in items
         ]
 
-    discounted_qs = Product.objects.filter(discount__gt=0).order_by('-discount')
-    latest_qs = Product.objects.order_by('-created_at')
+    discounted_qs = Product.objects.filter(discount__gt=0).order_by('-discount')[:8]
+    latest_qs = Product.objects.order_by('-created_at')[:8]
 
     discounted_data = ProductSerializer(discounted_qs, many=True).data
     latest_data = ProductSerializer(latest_qs, many=True).data
@@ -85,3 +85,16 @@ def search_products(request):
     ]
     return Response({'products': filtered})
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def request_quote(request):
+    serializer = RequestQuoteSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            'message': 'Quote request submitted successfully',
+            'request_quote': serializer.data
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

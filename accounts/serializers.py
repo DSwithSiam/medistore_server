@@ -12,26 +12,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True,
     )
-    confirm_password = serializers.CharField(write_only=True, required=True)
+
 
     class Meta:
         model = User
         fields = (
-            'email', 'password', 'confirm_password', 'first_name', 'last_name',
+            'email', 'password', 'first_name', 'last_name',
             'phone_number', 'address', 'profile_picture'
         )
 
-    def validate(self, attrs):
-        if attrs['password'] != attrs['confirm_password']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
-            )
-        return attrs
-
     def create(self, validated_data):
         validated_data.pop('confirm_password', None)
-        user = User.objects.create_user(**validated_data)
-        return user
+        return User.objects.create_user(**validated_data)
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -63,14 +55,6 @@ class ChangePasswordSerializer(serializers.Serializer):
         required=True,
         write_only=True,
     )
-    new_password2 = serializers.CharField(required=True, write_only=True)
-
-    def validate(self, attrs):
-        if attrs['new_password'] != attrs['new_password2']:
-            raise serializers.ValidationError(
-                {"new_password": "Password fields didn't match."}
-            )
-        return attrs
 
     def validate_old_password(self, value):
         user = self.context['request'].user

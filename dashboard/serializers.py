@@ -6,3 +6,4 @@ class RequestQuoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestQuote
         fields = ['id', 'first_name', 'last_name', 'email', 'phone_number', 'description', 'created_at']
+        write_only_fields = ['first_name', 'last_name', 'email', 'phone_number', 'description']
