@@ -157,7 +157,7 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": "token_type",
 }
 
-<<<<<<< HEAD
+
 # Email Configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -170,8 +170,6 @@ DEFAULT_FROM_EMAIL = (
     if EMAIL_HOST_USER
     else "Medistore <noreply@medistore.com>"
 )
-=======
-
 
 # Swagger settings
 
@@ -184,4 +182,3 @@ SWAGGER_SETTINGS = {
         }
     }
 }
->>>>>>> siam
