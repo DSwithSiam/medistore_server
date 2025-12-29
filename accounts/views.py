@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.shortcuts import get_object_or_404
 from .models import User, OTP
+from .utils import send_otp_email
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
@@ -42,16 +43,26 @@ def register_user(request):
         # Generate OTP for email verification
         otp = OTP.create_otp(user.email, "verification")
 
+        # Send OTP via email
+        email_sent, email_message = send_otp_email(
+            user.email, otp.otp_code, "verification"
+        )
+
         tokens = get_tokens_for_user(user)
         user_data = UserProfileSerializer(user).data
 
+        response_message = "User registered successfully. "
+        if email_sent:
+            response_message += "Please check your email for the verification code."
+        else:
+            response_message += f"Unable to send email. {email_message}"
+
         return Response(
             {
-                "message": "User registered successfully. Please verify your email.",
+                "message": response_message,
                 "user": user_data,
                 "tokens": tokens,
-                "otp": otp.otp_code,  # Demo: returning OTP in response
-                "otp_expires_in": "10 minutes",
+                "email_sent": email_sent,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -231,12 +242,20 @@ def resend_otp(request):
         # Generate OTP
         otp = OTP.create_otp(email, purpose)
 
+        # Send OTP via email
+        email_sent, email_message = send_otp_email(email, otp.otp_code, purpose)
+
         purpose_text = "verification" if purpose == "verification" else "password reset"
+
+        if email_sent:
+            response_msg = f"OTP has been sent to your email for {purpose_text}"
+        else:
+            response_msg = f"Unable to send email. {email_message}"
+
         return Response(
             {
-                "message": f"OTP resent successfully for {purpose_text}",
-                "otp": otp.otp_code,  # Demo: returning OTP in response
-                "expires_in": "10 minutes",
+                "message": response_msg,
+                "email_sent": email_sent,
             },
             status=status.HTTP_200_OK,
         )
@@ -269,12 +288,16 @@ def send_verification_otp(request):
         # Generate OTP
         otp = OTP.create_otp(email, "verification")
 
+        # Send OTP via email
+        email_sent, email_message = send_otp_email(email, otp.otp_code, "verification")
+
+        if email_sent:
+            response_msg = "Verification code has been sent to your email"
+        else:
+            response_msg = f"Unable to send email. {email_message}"
+
         return Response(
-            {
-                "message": "OTP sent successfully",
-                "otp": otp.otp_code,  # Demo: returning OTP in response
-                "expires_in": "10 minutes",
-            },
+            {"message": response_msg, "email_sent": email_sent},
             status=status.HTTP_200_OK,
         )
 
@@ -351,12 +374,16 @@ def send_password_reset_otp(request):
         # Generate OTP
         otp = OTP.create_otp(email, "reset")
 
+        # Send OTP via email
+        email_sent, email_message = send_otp_email(email, otp.otp_code, "reset")
+
+        if email_sent:
+            response_msg = "Password reset code has been sent to your email"
+        else:
+            response_msg = f"Unable to send email. {email_message}"
+
         return Response(
-            {
-                "message": "Password reset OTP sent successfully",
-                "otp": otp.otp_code,  # Demo: returning OTP in response
-                "expires_in": "10 minutes",
-            },
+            {"message": response_msg, "email_sent": email_sent},
             status=status.HTTP_200_OK,
         )
 

@@ -1,11 +1,14 @@
 from pathlib import Path
-
-
+import environ
+import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-9=a7ap**cvt*^fzvx!xo#4$4eqgx6$dq&_f!k62j29f_6vi#9j"
 
+env = environ.Env()
+env_file=os.path.join(BASE_DIR, '.env')
+environ.Env.read_env(env_file)
 
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=True)
 
 ALLOWED_HOSTS = [
     "10.10.13.104",
@@ -151,3 +154,16 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
 }
+
+# Email Configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env("EMAIL", default="")  # Set EMAIL in .env file
+EMAIL_HOST_PASSWORD = env("PASSWORD", default="")  # Set PASSWORD in .env file
+DEFAULT_FROM_EMAIL = (
+    f"Medistore <{EMAIL_HOST_USER}>"
+    if EMAIL_HOST_USER
+    else "Medistore <noreply@medistore.com>"
+)
