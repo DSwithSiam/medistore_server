@@ -19,6 +19,7 @@ class BKashPaymentSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    payment_id = serializers.CharField(source="id", read_only=True)
     user_email = serializers.EmailField(source="user.email", read_only=True)
     user_name = serializers.SerializerMethodField()
     bkash = BKashPaymentSerializer(read_only=True)
@@ -26,7 +27,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = [
-            "id",
+            "payment_id",
             "user",
             "user_email",
             "user_name",

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from dashboard.models import Cart, Cart, CartItem, RequestQuote, Wishlist
+from dashboard.models import Cart, Cart, CartItem, OrderHistory, OrderHistory, RequestQuote, Wishlist
 
 
 @admin.register(Wishlist)
@@ -26,3 +26,9 @@ class CartItemAdmin(admin.ModelAdmin):
     list_display = ('cart', 'product', 'quantity', 'added_at')
     search_fields = ('cart__user__email', 'product__name')
     list_filter = ('added_at',)
+
+@admin.register(OrderHistory)
+class OrderHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'cart', 'ordered_at')
+    search_fields = ('user__email', 'cart__id')
+    list_filter = ('ordered_at',)

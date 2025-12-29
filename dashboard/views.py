@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from products.models import Product
-from .models import Cart, CartItem, RequestQuote, Wishlist
+from .models import Cart, CartItem, OrderHistory, RequestQuote, Wishlist
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
-from dashboard.serializers import RequestQuoteSerializer, CartSerializer
+from dashboard.serializers import (
+    OrderHistorySerializer,
+    RequestQuoteSerializer,
+    CartSerializer,
+)
 from products.serializers import ProductSerializer
 
 # Create your views here.
@@ -171,7 +175,7 @@ def _get_user_cart(user):
 @permission_classes([IsAuthenticated])
 def cart_detail(request):
     cart = _get_user_cart(request.user)
-    return Response(CartSerializer(cart).data)
+    return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -198,7 +202,7 @@ def cart_add_item(request):
         item.quantity += quantity
         item.save()
 
-    return Response(CartSerializer(cart).data, status=201)
+    return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["PATCH"])
@@ -224,7 +228,7 @@ def cart_update_item(request, item_id: int):
         item.quantity = quantity
         item.save()
 
-    return Response(CartSerializer(cart).data)
+    return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 @api_view(["DELETE"])
@@ -234,4 +238,20 @@ def cart_delete_item(request, item_id: int):
     deleted = cart.items.filter(id=item_id).delete()[0]
     if deleted == 0:
         return Response({"error": "Cart item not found"}, status=404)
-    return Response(CartSerializer(cart).data)
+    return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def clear_cart(request):
+    cart = _get_user_cart(request.user)
+    cart.items.all().delete()
+    return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def order_history(request):
+    orders = OrderHistory.objects.filter(user=request.user).order_by("-ordered_at")
+    serializer = OrderHistorySerializer(orders, many=True)
+    return Response({"orders": serializer.data}, status=status.HTTP_200_OK)

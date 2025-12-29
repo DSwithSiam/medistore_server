@@ -48,3 +48,10 @@ class CartItem(models.Model):
 
 
 
+class OrderHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='order_histories')
+    cart= models.ForeignKey(Cart, on_delete=models.CASCADE)
+    ordered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"OrderHistory #{self.id} for {self.user.email}"
