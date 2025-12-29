@@ -9,7 +9,6 @@ from rest_framework.decorators import permission_classes
 from dashboard.serializers import RequestQuoteSerializer, CartSerializer
 from products.serializers import ProductSerializer
 
-# Create your views here.
 
 
 from rest_framework.response import Response

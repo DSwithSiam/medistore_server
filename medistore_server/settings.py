@@ -11,6 +11,7 @@ ALLOWED_HOSTS = [
     "10.10.13.104",
     "localhost",
     "127.0.0.1",
+    "10.10.13.73"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_yasg",
     "accounts",
     "dashboard",
     "products",
@@ -150,4 +152,18 @@ SIMPLE_JWT = {
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
+}
+
+
+
+# Swagger settings
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
 }

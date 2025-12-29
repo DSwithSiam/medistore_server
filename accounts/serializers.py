@@ -20,10 +20,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         required=True,
     )
 
-    if User.objects.filter(email=email).exists():
-        raise Response({
-            'message': 'User with this email already exists.'
-        }, status=status.HTTP_400_BAD_REQUEST)
     class Meta:
         model = User
         fields = (
