@@ -1,7 +1,12 @@
 from django.contrib import admin
 
-from dashboard.models import Cart, Cart, CartItem, RequestQuote
+from dashboard.models import Cart, Cart, CartItem, RequestQuote, Wishlist
 
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
+    search_fields = ('user__email',)
 # Register your models here.
 @admin.register(RequestQuote)
 class RequestQuoteAdmin(admin.ModelAdmin):
@@ -13,7 +18,7 @@ class RequestQuoteAdmin(admin.ModelAdmin):
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'created_at', 'updated_at')
-    
+
 
 
 @admin.register(CartItem)

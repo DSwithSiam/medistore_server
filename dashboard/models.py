@@ -16,6 +16,13 @@ class RequestQuote(models.Model):
     def __str__(self):
         return f"Quote Request from {self.first_name} {self.last_name}"
 
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlists')
+    products = models.ManyToManyField(Product, related_name='wishlisted_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Wishlist of {self.user.email}"
 
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carts')

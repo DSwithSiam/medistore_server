@@ -5,6 +5,8 @@ urlpatterns = [
     path('home/', views.dashboard_home, name='product-list'),
     path('filter/<str:category>/', views.filter_products, name='filter-products'),
     path('search/', views.search_products, name='search-products'),
+    path('wishlist/add/', views.add_to_wishlist, name='add-to-wishlist'),
+    path('wishlist/view/', views.view_wishlist, name='view-wishlist'),
     path('request_quote/', views.request_quote, name='request-quote'),
     path('quotes/', views.get_quotes, name='get-quotes'),
     # Cart endpoints

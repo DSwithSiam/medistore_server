@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from decimal import Decimal
-from .models import RequestQuote, Cart, CartItem
+from .models import RequestQuote, Cart, CartItem, Wishlist
 
+
+class WishListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'user', 'products', 'created_at']
 
 class RequestQuoteSerializer(serializers.ModelSerializer):
     class Meta:
