@@ -13,7 +13,6 @@ from dashboard.serializers import (
 )
 from products.serializers import ProductSerializer
 
-# Create your views here.
 
 
 from rest_framework.response import Response

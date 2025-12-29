@@ -21,6 +21,14 @@ from .serializers import (
     ResetPasswordSerializer,
     ResendOTPSerializer,
 )
+from .schemas import (
+    register_user_swagger,
+    login_user_swagger,
+    logout_user_swagger,
+    get_user_profile_swagger,
+    update_user_profile_swagger,
+    change_password_swagger,
+)
 
 
 def get_tokens_for_user(user):
@@ -32,6 +40,7 @@ def get_tokens_for_user(user):
     }
 
 
+@register_user_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -70,6 +79,7 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@login_user_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login_user(request):
@@ -106,6 +116,7 @@ def login_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@logout_user_swagger
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_user(request):
@@ -127,6 +138,7 @@ def logout_user(request):
         )
 
 
+@get_user_profile_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
@@ -135,6 +147,7 @@ def get_user_profile(request):
     return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
+@update_user_profile_swagger
 @api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])
 def update_user_profile(request):
@@ -153,6 +166,7 @@ def update_user_profile(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@change_password_swagger
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def change_password(request):
