@@ -12,12 +12,26 @@ from dashboard.serializers import (
     CartSerializer,
 )
 from products.serializers import ProductSerializer
-
-
-
 from rest_framework.response import Response
 
+from .schemas import (
+    home_swagger,
+    search_products_swagger,
+    filtered_products_swagger,
+    add_to_cart_swagger,
+    view_cart_swagger,
+    update_cart_item_swagger,
+    delete_cart_item_swagger,
+    clear_cart_swagger,
+    order_history_swagger,
+    request_quotes_swagger,
+    get_quotes_swagger,
+    add_to_wishlist_swagger,
+    view_wishlist_swagger,
+)
 
+
+@home_swagger
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def dashboard_home(request):
@@ -49,6 +63,7 @@ def dashboard_home(request):
     )
 
 
+@filtered_products_swagger
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def filter_products(request, category):
@@ -69,6 +84,7 @@ def filter_products(request, category):
     return Response({"products": filtered})
 
 
+@search_products_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def search_products(request):
@@ -94,6 +110,7 @@ def search_products(request):
     return Response({"products": filtered})
 
 
+@add_to_wishlist_swagger
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def add_to_wishlist(request):
@@ -116,6 +133,7 @@ def add_to_wishlist(request):
     return Response({"message": "Product added to wishlist"}, status=status.HTTP_200_OK)
 
 
+@view_wishlist_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def view_wishlist(request):
@@ -137,6 +155,7 @@ def view_wishlist(request):
     return Response({"wishlist": filtered}, status=status.HTTP_200_OK)
 
 
+@request_quotes_swagger
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def request_quote(request):
@@ -154,10 +173,11 @@ def request_quote(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@get_quotes_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_quotes(request):
-    quotes = RequestQuote.objects.filter(user=request.user).order_by("-created_at")
+    quotes = RequestQuote.objects.all().order_by("-created_at")
     serializer = RequestQuoteSerializer(quotes, many=True)
     return Response({"quotes": serializer.data}, status=status.HTTP_200_OK)
 
@@ -170,6 +190,7 @@ def _get_user_cart(user):
     return cart
 
 
+@view_cart_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def cart_detail(request):
@@ -177,6 +198,7 @@ def cart_detail(request):
     return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
+@add_to_cart_swagger
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def cart_add_item(request):
@@ -204,6 +226,7 @@ def cart_add_item(request):
     return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
 
 
+@update_cart_item_swagger
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def cart_update_item(request, item_id: int):
@@ -230,6 +253,7 @@ def cart_update_item(request, item_id: int):
     return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
+@delete_cart_item_swagger
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def cart_delete_item(request, item_id: int):
@@ -240,6 +264,7 @@ def cart_delete_item(request, item_id: int):
     return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
+@clear_cart_swagger
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def clear_cart(request):
@@ -248,6 +273,7 @@ def clear_cart(request):
     return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
+@order_history_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def order_history(request):

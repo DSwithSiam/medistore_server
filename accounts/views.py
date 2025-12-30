@@ -28,6 +28,14 @@ from .schemas import (
     get_user_profile_swagger,
     update_user_profile_swagger,
     change_password_swagger,
+    resend_otp_swagger,
+    delete_user_swagger,
+    reset_password_swagger,
+    send_reset_password_otp_swagger,
+    send_verification_otp_swagger,
+    user_list_swagger,
+    get_user_by_id_swagger,
+    verify_email_swagger,
 )
 
 
@@ -183,6 +191,7 @@ def change_password(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@user_list_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
@@ -200,6 +209,7 @@ def get_all_users(request):
     )
 
 
+@get_user_by_id_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_by_id(request, user_id):
@@ -215,6 +225,7 @@ def get_user_by_id(request, user_id):
     return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
+@delete_user_swagger
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def delete_user_account(request):
@@ -229,6 +240,7 @@ def delete_user_account(request):
 # OTP and Email Verification Endpoints
 
 
+@resend_otp_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def resend_otp(request):
@@ -277,6 +289,7 @@ def resend_otp(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@send_verification_otp_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def send_verification_otp(request):
@@ -318,6 +331,7 @@ def send_verification_otp(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@verify_email_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def verify_email_otp(request):
@@ -368,6 +382,7 @@ def verify_email_otp(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@send_reset_password_otp_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def send_password_reset_otp(request):
@@ -404,6 +419,7 @@ def send_password_reset_otp(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@reset_password_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reset_password_with_otp(request):

@@ -5,8 +5,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Payment, BKashPayment
 from .serializers import PaymentSerializer
+from .schemas import (
+    payments_swagger,
+    payment_details_swagger,
+)
 
 
+@payments_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def payment_list(request):
@@ -28,6 +33,7 @@ def payment_list(request):
     return Response({"payments": serializer.data, "count": payments.count()})
 
 
+@payment_details_swagger
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def payment_detail(request, payment_id):

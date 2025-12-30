@@ -1,21 +1,17 @@
 from pathlib import Path
 import environ
 import os
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-9=a7ap**cvt*^fzvx!xo#4$4eqgx6$dq&_f!k62j29f_6vi#9j"
 
 env = environ.Env()
-env_file=os.path.join(BASE_DIR, '.env')
+env_file = os.path.join(BASE_DIR, ".env")
 environ.Env.read_env(env_file)
 
 DEBUG = env.bool("DEBUG", default=True)
 
-ALLOWED_HOSTS = [
-    "10.10.13.104",
-    "localhost",
-    "127.0.0.1",
-    "10.10.13.73"
-]
+ALLOWED_HOSTS = ["10.10.13.104", "localhost", "127.0.0.1", "10.10.13.73"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
@@ -174,11 +170,14 @@ DEFAULT_FROM_EMAIL = (
 # Swagger settings
 
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": 'Enter your JWT token with "Bearer " prefix. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...',
         }
-    }
+    },
+    "USE_SESSION_AUTH": False,
+    "PERSIST_AUTH": True,
 }

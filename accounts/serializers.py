@@ -20,15 +20,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         required=True,
     )
 
-<<<<<<< HEAD
-    if User.objects.filter(email=email).exists():
-        raise Response(
-            {"message": "User with this email already exists."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-=======
->>>>>>> siam
     class Meta:
         model = User
         fields = (
