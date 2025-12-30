@@ -25,5 +25,6 @@ urlpatterns = [
     ),
     path("verify-email/", views.verify_email_otp, name="verify_email"),
     path("send-reset-otp/", views.send_password_reset_otp, name="send_reset_otp"),
+    path("verify-reset-otp/", views.verify_reset_otp, name="verify_reset_otp"),
     path("reset-password/", views.reset_password_with_otp, name="reset_password"),
 ]

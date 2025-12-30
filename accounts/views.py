@@ -18,6 +18,7 @@ from .serializers import (
     ChangePasswordSerializer,
     SendOTPSerializer,
     VerifyOTPSerializer,
+    VerifyResetOTPSerializer,
     ResetPasswordSerializer,
     ResendOTPSerializer,
 )
@@ -36,6 +37,7 @@ from .schemas import (
     user_list_swagger,
     get_user_by_id_swagger,
     verify_email_swagger,
+    verify_reset_otp_swagger,
 )
 
 
@@ -423,16 +425,15 @@ def send_password_reset_otp(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@reset_password_swagger
+@verify_reset_otp_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def reset_password_with_otp(request):
-    """Reset password using OTP"""
-    serializer = ResetPasswordSerializer(data=request.data)
+def verify_reset_otp(request):
+    """Verify OTP for password reset"""
+    serializer = VerifyResetOTPSerializer(data=request.data)
     if serializer.is_valid():
         email = serializer.validated_data["email"]
         otp_code = serializer.validated_data["otp_code"]
-        new_password = serializer.validated_data["new_password"]
 
         try:
             user = User.objects.get(email=email)
@@ -452,20 +453,49 @@ def reset_password_with_otp(request):
                     {"error": "OTP has expired"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Mark OTP as used and reset password
+            # Mark OTP as used
             otp.is_used = True
             otp.save()
 
-            user.set_password(new_password)
-            user.save()
-
             return Response(
-                {"message": "Password reset successfully"}, status=status.HTTP_200_OK
+                {
+                    "success": True,
+                    "message": "OTP verified successfully. You can now reset your password.",
+                },
+                status=status.HTTP_200_OK,
             )
 
         except OTP.DoesNotExist:
             return Response(
                 {"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@reset_password_swagger
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reset_password_with_otp(request):
+    """Reset password (OTP must be verified first)"""
+    serializer = ResetPasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data["email"]
+        new_password = serializer.validated_data["new_password"]
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Reset password
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "Password reset successfully"}, status=status.HTTP_200_OK
+        )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

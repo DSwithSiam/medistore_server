@@ -463,19 +463,15 @@ delete_user_swagger = swagger_auto_schema(
 reset_password_swagger = swagger_auto_schema(
     methods=["post"],
     operation_id="accounts_reset_password",
-    operation_description="Reset user password using OTP code sent to email.",
+    operation_description="Reset user password. The OTP must be verified first using the verify-reset-otp endpoint, which marks the OTP as used.",
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
-        required=["email", "otp_code", "new_password"],
+        required=["email", "new_password"],
         properties={
             "email": openapi.Schema(
                 type=openapi.TYPE_STRING,
                 format=openapi.FORMAT_EMAIL,
                 description="User email address",
-            ),
-            "otp_code": openapi.Schema(
-                type=openapi.TYPE_STRING,
-                description="6-digit OTP code sent to email",
             ),
             "new_password": openapi.Schema(
                 type=openapi.TYPE_STRING,
@@ -489,8 +485,47 @@ reset_password_swagger = swagger_auto_schema(
             description="Password reset successfully", schema=success_message_schema
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
-            description="Validation error (e.g., invalid OTP code)",
+            description="Validation error",
             schema=validation_error_schema,
+        ),
+        status.HTTP_404_NOT_FOUND: openapi.Response(
+            description="User not found",
+            schema=error_response_schema,
+        ),
+    },
+    tags=["Accounts"],
+)
+
+verify_reset_otp_swagger = swagger_auto_schema(
+    methods=["post"],
+    operation_id="accounts_verify_reset_otp",
+    operation_description="Verify OTP code for password reset. This must be called before resetting the password.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["email", "otp_code"],
+        properties={
+            "email": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_EMAIL,
+                description="User email address",
+            ),
+            "otp_code": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="6-digit OTP code sent to email",
+            ),
+        },
+    ),
+    responses={
+        status.HTTP_200_OK: openapi.Response(
+            description="OTP verified successfully", schema=success_message_schema
+        ),
+        status.HTTP_400_BAD_REQUEST: openapi.Response(
+            description="Validation error (e.g., invalid or expired OTP)",
+            schema=validation_error_schema,
+        ),
+        status.HTTP_404_NOT_FOUND: openapi.Response(
+            description="User not found",
+            schema=error_response_schema,
         ),
     },
     tags=["Accounts"],
