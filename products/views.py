@@ -64,6 +64,11 @@ def product_list(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def product_create(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response(
+            {"error": "Permission denied. Admin access required."}, status=403
+        )
+
     serializer = ProductCreateUpdateSerializer(data=request.data)
     if serializer.is_valid():
         product = serializer.save()
@@ -109,6 +114,11 @@ def product_detail(request, product_ref):
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def product_update(request, product_ref):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response(
+            {"error": "Permission denied. Admin access required."}, status=403
+        )
+
     try:
         product = Product.objects.get(product_ref=product_ref)
     except Product.DoesNotExist:
@@ -125,6 +135,11 @@ def product_update(request, product_ref):
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def product_delete(request, product_ref):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response(
+            {"error": "Permission denied. Admin access required."}, status=403
+        )
+
     try:
         product = Product.objects.get(product_ref=product_ref)
     except Product.DoesNotExist:

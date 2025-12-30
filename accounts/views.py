@@ -230,7 +230,11 @@ def get_user_by_id(request, user_id):
 @permission_classes([IsAuthenticated])
 def delete_user_account(request):
     """Delete current user account"""
+    from django.contrib.admin.models import LogEntry
+
     user = request.user
+    # Delete all LogEntry records associated with this user to avoid foreign key constraint
+    LogEntry.objects.filter(user_id=user.pk).delete()
     user.delete()
     return Response(
         {"message": "Account deleted successfully"}, status=status.HTTP_200_OK

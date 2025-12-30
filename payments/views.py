@@ -16,7 +16,7 @@ from .schemas import (
 @permission_classes([IsAuthenticated])
 def payment_list(request):
     """Get all payments (admin only) or current user's payments"""
-    if request.user.is_staff:
+    if request.user.is_staff or request.user.is_superuser:
         payments = (
             Payment.objects.all()
             .select_related("user", "bkash")
@@ -39,7 +39,7 @@ def payment_list(request):
 def payment_detail(request, payment_id):
     """Get specific payment details"""
     try:
-        if request.user.is_staff:
+        if request.user.is_staff or request.user.is_superuser:
             payment = Payment.objects.select_related("user", "bkash").get(id=payment_id)
         else:
             payment = Payment.objects.select_related("bkash").get(
