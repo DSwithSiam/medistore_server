@@ -51,3 +51,16 @@ class OTPAdmin(admin.ModelAdmin):
     search_fields = ("email", "otp_code", "purpose")
     list_filter = ("purpose", "is_used", "created_at")
     ordering = ("-created_at",)
+
+    # Disable automatic logging to avoid FK constraint issues
+    def log_addition(self, request, object, message):
+        """Disable log addition"""
+        pass
+
+    def log_change(self, request, object, message):
+        """Disable log change"""
+        pass
+
+    def log_deletion(self, request, object, object_repr):
+        """Disable log deletion"""
+        pass

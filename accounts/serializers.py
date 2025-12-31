@@ -112,4 +112,4 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 class ResendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    purpose = serializers.ChoiceField(choices=["verification", "reset"], required=True)
+    

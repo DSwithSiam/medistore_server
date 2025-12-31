@@ -340,12 +340,13 @@ def send_verification_otp(request):
 @verify_email_swagger
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def verify_email_otp(request):
-    """Verify email using OTP"""
-    serializer = VerifyOTPSerializer(data=request.data)
+def verify_otp(request):
+    """Verify OTP for email verification or password reset"""
+    serializer = VerifyResetOTPSerializer(data=request.data)
     if serializer.is_valid():
         email = serializer.validated_data["email"]
         otp_code = serializer.validated_data["otp_code"]
+        print(otp_code)
 
         try:
             user = User.objects.get(email=email)
@@ -357,7 +358,7 @@ def verify_email_otp(request):
         # Find valid OTP
         try:
             otp = OTP.objects.filter(
-                email=email, otp_code=otp_code, purpose="verification", is_used=False
+                email=email, otp_code=otp_code, is_used=False
             ).latest("created_at")
 
             if not otp.is_valid():
@@ -365,20 +366,28 @@ def verify_email_otp(request):
                     {"error": "OTP has expired"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Mark OTP as used and verify user
+            # Mark OTP as used
             otp.is_used = True
             otp.save()
 
-            user.is_verified = True
-            user.save()
+            # If verification purpose, verify the user
 
-            return Response(
-                {
-                    "message": "Email verified successfully",
-                    "user": UserProfileSerializer(user).data,
-                },
-                status=status.HTTP_200_OK,
-            )
+            if user.is_verified:
+                user.save()
+                return Response(
+                    {
+                        "success": True,
+                        "message": "OTP verified successfully. You can now reset your password.",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                user.is_verified = True
+                user.save()
+                return Response(
+                    {"success": True, "message": "Email verified successfully."},
+                    status=status.HTTP_200_OK,
+                )
 
         except OTP.DoesNotExist:
             return Response(
@@ -421,54 +430,6 @@ def send_password_reset_otp(request):
             {"message": response_msg, "email_sent": email_sent},
             status=status.HTTP_200_OK,
         )
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@verify_reset_otp_swagger
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def verify_reset_otp(request):
-    """Verify OTP for password reset"""
-    serializer = VerifyResetOTPSerializer(data=request.data)
-    if serializer.is_valid():
-        email = serializer.validated_data["email"]
-        otp_code = serializer.validated_data["otp_code"]
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        # Find valid OTP
-        try:
-            otp = OTP.objects.filter(
-                email=email, otp_code=otp_code, purpose="reset", is_used=False
-            ).latest("created_at")
-
-            if not otp.is_valid():
-                return Response(
-                    {"error": "OTP has expired"}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Mark OTP as used
-            otp.is_used = True
-            otp.save()
-
-            return Response(
-                {
-                    "success": True,
-                    "message": "OTP verified successfully. You can now reset your password.",
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        except OTP.DoesNotExist:
-            return Response(
-                {"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST
-            )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
