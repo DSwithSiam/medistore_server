@@ -5,6 +5,92 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+# ==================== Response Serializers ====================
+
+
+class TokenSerializer(serializers.Serializer):
+    """JWT token pair serializer"""
+
+    refresh = serializers.CharField(
+        help_text="JWT refresh token (valid for 24 hours)",
+        read_only=True,
+    )
+    access = serializers.CharField(
+        help_text="JWT access token (valid for 5 minutes)",
+        read_only=True,
+    )
+
+
+class MessageSerializer(serializers.Serializer):
+    """Generic message response serializer"""
+
+    message = serializers.CharField(read_only=True)
+
+
+class ErrorSerializer(serializers.Serializer):
+    """Generic error response serializer"""
+
+    error = serializers.CharField(read_only=True)
+
+
+class AuthResponseSerializer(serializers.Serializer):
+    """Authentication response with user, tokens, and message"""
+
+    message = serializers.CharField(read_only=True)
+    user = serializers.SerializerMethodField()
+    tokens = TokenSerializer(read_only=True)
+    email_sent = serializers.BooleanField(
+        required=False, read_only=True, help_text="Whether OTP email was sent"
+    )
+
+    def get_user(self):
+        # This will be overridden with actual UserProfileSerializer data
+        return {}
+
+
+class UserResponseSerializer(serializers.Serializer):
+    """User response with optional message"""
+
+    message = serializers.CharField(read_only=True, required=False)
+    user = serializers.SerializerMethodField()
+
+    def get_user(self):
+        return {}
+
+
+class UserListResponseSerializer(serializers.Serializer):
+    """User list response"""
+
+    users = serializers.ListField(child=serializers.DictField(), read_only=True)
+    count = serializers.IntegerField(read_only=True)
+
+
+class OTPResponseSerializer(serializers.Serializer):
+    """OTP operation response"""
+
+    message = serializers.CharField(read_only=True)
+    email_sent = serializers.BooleanField(read_only=True)
+
+
+class OTPVerificationResponseSerializer(serializers.Serializer):
+    """OTP verification success response"""
+
+    success = serializers.BooleanField(read_only=True)
+    message = serializers.CharField(read_only=True)
+    user = serializers.DictField(required=False, read_only=True)
+
+
+class LogoutRequestSerializer(serializers.Serializer):
+    """Logout request body"""
+
+    refresh_token = serializers.CharField(
+        required=True, help_text="JWT refresh token to blacklist"
+    )
+
+
+# ==================== Request/Input Serializers ====================
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(
@@ -112,4 +198,8 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 class ResendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    
+    purpose = serializers.ChoiceField(
+        choices=["verification", "reset"],
+        required=True,
+        help_text="Purpose of OTP: 'verification' for email verification, 'reset' for password reset",
+    )
